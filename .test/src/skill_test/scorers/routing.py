@@ -23,7 +23,6 @@ SKILL_TRIGGERS = {
         "auto loader",
     ],
     "databricks-apps-python": [
-        "databricks app",
         "python app",
         "streamlit",
         "dash",
@@ -33,7 +32,6 @@ SKILL_TRIGGERS = {
         "reflex",
         "dashboard app",
         "data app",
-        "full-stack app",
     ],
     "databricks-bundles": ["dabs", "databricks asset bundle", "deploy", "bundle.yaml"],
     "databricks-python-sdk": [
