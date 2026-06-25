@@ -97,10 +97,6 @@ $script:MlflowSkills = @(
 )
 $MlflowRawUrl = "https://raw.githubusercontent.com/mlflow/skills/main"
 
-# APX skills (fetched from databricks-solutions/apx repo)
-$script:ApxSkills = @("databricks-app-apx")
-$ApxRawUrl = "https://raw.githubusercontent.com/databricks-solutions/apx/main/skills/apx"
-
 # Agent skills (fetched from databricks/databricks-agent-skills repo)
 $script:AgentSkills = @("databricks-core:databricks", "databricks-apps", "databricks-lakebase")
 $AgentSkillsRawUrl = "https://raw.githubusercontent.com/databricks/databricks-agent-skills/main/skills"
@@ -129,7 +125,7 @@ $script:ProfileAiMlMlflow = @(
     "retrieving-mlflow-traces", "searching-mlflow-docs"
 )
 $script:ProfileAppDeveloper = @(
-    "databricks-apps-python", "databricks-app-apx", "databricks-lakebase-autoscale",
+    "databricks-apps-python", "databricks-lakebase-autoscale",
     "databricks-lakebase-provisioned", "databricks-model-serving", "databricks-dbsql",
     "databricks-jobs", "databricks-bundles"
 )
@@ -138,7 +134,6 @@ $script:ProfileAppDeveloperAgent = @("databricks-core:databricks", "databricks-a
 # Selected skills (populated during profile selection)
 $script:SelectedSkills = @()
 $script:SelectedMlflowSkills = @()
-$script:SelectedApxSkills = @()
 $script:SelectedAgentSkills = @()
 
 # ─── --list-skills handler ────────────────────────────────────
@@ -147,11 +142,11 @@ if ($script:ListSkills) {
     Write-Host "Available Skill Profiles" -ForegroundColor White
     Write-Host "--------------------------------"
     Write-Host ""
-    Write-Host "  all              " -ForegroundColor White -NoNewline; Write-Host "All 34 skills (default)"
+    Write-Host "  all              " -ForegroundColor White -NoNewline; Write-Host "All 33 skills (default)"
     Write-Host "  data-engineer    " -ForegroundColor White -NoNewline; Write-Host "Pipelines, Spark, Jobs, Streaming (14 skills)"
     Write-Host "  analyst          " -ForegroundColor White -NoNewline; Write-Host "Dashboards, SQL, Genie, Metrics (8 skills)"
     Write-Host "  ai-ml-engineer   " -ForegroundColor White -NoNewline; Write-Host "Agents, RAG, Vector Search, MLflow (17 skills)"
-    Write-Host "  app-developer    " -ForegroundColor White -NoNewline; Write-Host "Apps, Lakebase, Deployment (10 skills)"
+    Write-Host "  app-developer    " -ForegroundColor White -NoNewline; Write-Host "Apps, Lakebase, Deployment (9 skills)"
     Write-Host ""
     Write-Host "Core Skills (always installed)" -ForegroundColor White
     Write-Host "--------------------------------"
@@ -178,10 +173,6 @@ if ($script:ListSkills) {
     Write-Host "MLflow Skills (from mlflow/skills repo)" -ForegroundColor White
     Write-Host "--------------------------------"
     foreach ($s in $script:MlflowSkills) { Write-Host "    $s" }
-    Write-Host ""
-    Write-Host "APX Skills (from databricks-solutions/apx repo)" -ForegroundColor White
-    Write-Host "--------------------------------"
-    foreach ($s in $script:ApxSkills) { Write-Host "    $s" }
     Write-Host ""
     Write-Host "Agent Skills (from databricks/databricks-agent-skills repo)" -ForegroundColor White
     Write-Host "--------------------------------"
@@ -874,14 +865,11 @@ function Resolve-Skills {
         $userList = $script:UserSkills -split ','
         $dbSkills = @() + $script:CoreSkills
         $mlflowSkills = @()
-        $apxSkills = @()
         $agentSkills = @()
         foreach ($skill in $userList) {
             $skill = $skill.Trim()
             if ($script:MlflowSkills -contains $skill) {
                 $mlflowSkills += $skill
-            } elseif ($script:ApxSkills -contains $skill) {
-                $apxSkills += $skill
             } elseif ($script:AgentSkills | ForEach-Object { $_ -replace '^.*:', '' } | Where-Object { $_ -eq $skill }) {
                 $agentSkills += ($script:AgentSkills | Where-Object { ($_ -replace '^.*:', '') -eq $skill })
             } else {
@@ -890,7 +878,6 @@ function Resolve-Skills {
         }
         $script:SelectedSkills = $dbSkills | Select-Object -Unique
         $script:SelectedMlflowSkills = $mlflowSkills | Select-Object -Unique
-        $script:SelectedApxSkills = $apxSkills | Select-Object -Unique
         $script:SelectedAgentSkills = $agentSkills | Select-Object -Unique
         return
     }
@@ -899,7 +886,6 @@ function Resolve-Skills {
     if ([string]::IsNullOrWhiteSpace($script:SkillsProfile) -or $script:SkillsProfile -eq "all") {
         $script:SelectedSkills = $script:Skills
         $script:SelectedMlflowSkills = $script:MlflowSkills
-        $script:SelectedApxSkills = $script:ApxSkills
         $script:SelectedAgentSkills = $script:AgentSkills
         return
     }
@@ -907,7 +893,6 @@ function Resolve-Skills {
     # Build union of selected profiles
     $dbSkills = @() + $script:CoreSkills
     $mlflowSkills = @()
-    $apxSkills = @()
     $agentSkills = @()
 
     foreach ($profile in ($script:SkillsProfile -split ',')) {
@@ -916,7 +901,6 @@ function Resolve-Skills {
             "all" {
                 $script:SelectedSkills = $script:Skills
                 $script:SelectedMlflowSkills = $script:MlflowSkills
-                $script:SelectedApxSkills = $script:ApxSkills
                 $script:SelectedAgentSkills = $script:AgentSkills
                 return
             }
@@ -928,7 +912,6 @@ function Resolve-Skills {
             }
             "app-developer" {
                 $dbSkills += $script:ProfileAppDeveloper
-                $apxSkills += $script:ApxSkills
                 $agentSkills += $script:ProfileAppDeveloperAgent
             }
             default { Write-Warn "Unknown skill profile: $profile (ignored)" }
@@ -937,7 +920,6 @@ function Resolve-Skills {
 
     $script:SelectedSkills = $dbSkills | Select-Object -Unique
     $script:SelectedMlflowSkills = $mlflowSkills | Select-Object -Unique
-    $script:SelectedApxSkills = $apxSkills | Select-Object -Unique
     $script:SelectedAgentSkills = $agentSkills | Select-Object -Unique
 }
 
@@ -1129,7 +1111,7 @@ function Invoke-PromptCustomSkills {
             "data-engineer"  { $preselected += $script:ProfileDataEngineer }
             "analyst"        { $preselected += $script:ProfileAnalyst }
             "ai-ml-engineer" { $preselected += $script:ProfileAiMlEngineer + $script:ProfileAiMlMlflow }
-            "app-developer"  { $preselected += $script:ProfileAppDeveloper + $script:ApxSkills + $script:ProfileAppDeveloperAgent }
+            "app-developer"  { $preselected += $script:ProfileAppDeveloper + $script:ProfileAppDeveloperAgent }
         }
     }
     # Normalize "source:install-name" entries (e.g. "databricks-core:databricks") to install-name only,
@@ -1162,7 +1144,6 @@ function Invoke-PromptCustomSkills {
         @{ Label = "Lakebase Autoscale";   Value = "databricks-lakebase-autoscale";          State = ($preselected -contains "databricks-lakebase-autoscale");          Hint = "Managed PostgreSQL" }
         @{ Label = "Lakebase Provisioned"; Value = "databricks-lakebase-provisioned";        State = ($preselected -contains "databricks-lakebase-provisioned");        Hint = "Provisioned PostgreSQL" }
         @{ Label = "App (AppKit + Python)"; Value = "databricks-apps-python";                 State = ($preselected -contains "databricks-apps-python");                 Hint = "AppKit, Dash, Streamlit, Flask" }
-        @{ Label = "App APX";              Value = "databricks-app-apx";                     State = ($preselected -contains "databricks-app-apx");                     Hint = "FastAPI + React" }
         @{ Label = "Agent: Databricks";    Value = "databricks";                             State = ($preselected -contains "databricks");                             Hint = "CLI auth, data exploration" }
         @{ Label = "Agent: Apps";          Value = "databricks-apps";                        State = ($preselected -contains "databricks-apps");                        Hint = "AppKit + all frameworks" }
         @{ Label = "Agent: Lakebase";      Value = "databricks-lakebase";                    State = ($preselected -contains "databricks-lakebase");                    Hint = "Lakebase OLTP" }
@@ -1233,16 +1214,14 @@ function Install-Skills {
     # Count selected skills for display
     $dbCount = $script:SelectedSkills.Count
     $mlflowCount = $script:SelectedMlflowSkills.Count
-    $apxCount = $script:SelectedApxSkills.Count
     $agentCount = $script:SelectedAgentSkills.Count
-    $totalCount = $dbCount + $mlflowCount + $apxCount + $agentCount
+    $totalCount = $dbCount + $mlflowCount + $agentCount
     Write-Msg "Installing $totalCount skills"
 
     # Build set of all skills being installed now
     $allNewSkills = @()
     $allNewSkills += $script:SelectedSkills
     $allNewSkills += $script:SelectedMlflowSkills
-    $allNewSkills += $script:SelectedApxSkills
     $allNewSkills += $script:SelectedAgentSkills | ForEach-Object { $_ -replace '^.*:', '' }
 
     # Clean up previously installed skills that are no longer selected
@@ -1311,32 +1290,6 @@ function Install-Skills {
             }
             $ErrorActionPreference = $prevEAP
             Write-Ok "MLflow skills ($mlflowCount) -> $shortDir"
-        }
-
-        # Install APX skills from databricks-solutions/apx repo
-        if ($script:SelectedApxSkills.Count -gt 0) {
-            $prevEAP2 = $ErrorActionPreference; $ErrorActionPreference = "Continue"
-            foreach ($skill in $script:SelectedApxSkills) {
-                $destDir = Join-Path $dir $skill
-                if (-not (Test-Path $destDir)) {
-                    New-Item -ItemType Directory -Path $destDir -Force | Out-Null
-                }
-                $url = "$ApxRawUrl/SKILL.md"
-                try {
-                    Invoke-WebRequest -Uri $url -OutFile (Join-Path $destDir "SKILL.md") -UseBasicParsing -ErrorAction Stop
-                    foreach ($ref in @("backend-patterns.md", "frontend-patterns.md")) {
-                        try {
-                            Invoke-WebRequest -Uri "$ApxRawUrl/$ref" -OutFile (Join-Path $destDir $ref) -UseBasicParsing -ErrorAction Stop
-                        } catch {}
-                    }
-                    $manifestEntries += "$dir|$skill"
-                } catch {
-                    Remove-Item $destDir -ErrorAction SilentlyContinue
-                    Write-Warning "Could not install APX skill '$skill' - consider removing $destDir if it is no longer needed"
-                }
-            }
-            $ErrorActionPreference = $prevEAP2
-            Write-Ok "APX skills ($apxCount) -> $shortDir"
         }
 
         # Install Agent skills from databricks/databricks-agent-skills repo
@@ -1697,7 +1650,7 @@ Skills are installed in ``.gemini/skills/`` and provide patterns and best practi
 - Unity Catalog, SQL, Genie
 - MLflow evaluation and tracing
 - Model Serving, Vector Search
-- Databricks Apps (Python and APX)
+- Databricks Apps (Python)
 - And more
 
 ## Getting Started
@@ -2138,7 +2091,7 @@ function Invoke-Main {
         Write-Step "Skill profiles"
         Invoke-PromptSkillsProfile
         Resolve-Skills
-        $skCount = $script:SelectedSkills.Count + $script:SelectedMlflowSkills.Count + $script:SelectedApxSkills.Count
+        $skCount = $script:SelectedSkills.Count + $script:SelectedMlflowSkills.Count
         if (-not [string]::IsNullOrWhiteSpace($script:UserSkills)) {
             Write-Ok "Custom selection ($skCount skills)"
         } else {
@@ -2168,7 +2121,7 @@ function Invoke-Main {
             Write-Host "  MCP server:  " -NoNewline; Write-Host $script:InstallDir -ForegroundColor Green
         }
         if ($script:InstallSkills) {
-            $skTotal = $script:SelectedSkills.Count + $script:SelectedMlflowSkills.Count + $script:SelectedApxSkills.Count + $script:SelectedAgentSkills.Count
+            $skTotal = $script:SelectedSkills.Count + $script:SelectedMlflowSkills.Count + $script:SelectedAgentSkills.Count
             if (-not [string]::IsNullOrWhiteSpace($script:UserSkills)) {
                 Write-Host "  Skills:      " -NoNewline
                 Write-Host "custom selection ($skTotal skills)" -ForegroundColor Green -NoNewline

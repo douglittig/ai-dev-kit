@@ -52,8 +52,6 @@ SKILL_SOURCES = [
     {"owner": "databricks-solutions", "repo": "ai-dev-kit", "path": "databricks-skills",
      "skip": {"TEMPLATE"}},
     {"owner": "mlflow",               "repo": "skills",      "path": ""},
-    {"owner": "databricks-solutions", "repo": "apx",         "path": "skills",
-     "name_overrides": {"apx": "databricks-app-apx"}},
 ]
 
 

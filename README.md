@@ -86,6 +86,8 @@ Curated by Databricks field experts. Brings the patterns, skills, and 75+ execut
 - **Databricks Apps** (full-stack web applications with foundation model integration)
 - ...and more
 
+> **Building a Databricks App?** The `databricks-apps-python` skill defaults to AppKit (TypeScript + React) — the recommended path for most Apps use cases — and falls back to the Python frameworks (Dash, Streamlit, Flask, FastAPI, Gradio, Reflex) when you need a specific one. If you specifically need the APX (FastAPI + React) framework, that skill now lives in the [databricks-solutions/apx](https://github.com/databricks-solutions/apx) repo.
+
 ---
 
 ## Choose Your Own Adventure

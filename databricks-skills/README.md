@@ -11,7 +11,7 @@ Run from your **project root** (the directory where you want `.claude/skills` cr
 If you already have the repo (fork or clone), use the script on disk:
 
 ```bash
-# Install all skills (Databricks + MLflow + APX) — downloads from GitHub by default
+# Install all skills (Databricks + MLflow) — downloads from GitHub by default
 ./databricks-skills/install_skills.sh
 
 # Install Databricks skills only from this checkout (no network for those skills)
@@ -20,7 +20,7 @@ If you already have the repo (fork or clone), use the script on disk:
 # Install specific skills
 ./databricks-skills/install_skills.sh databricks-bundles agent-evaluation
 
-# Pin MLflow / APX versions
+# Pin MLflow version
 ./databricks-skills/install_skills.sh --mlflow-version v1.0.0
 
 # List available skills
@@ -101,7 +101,6 @@ cp -r ai-dev-kit/databricks-skills/databricks-agent-bricks .claude/skills/
 
 ### 🚀 Development & Deployment
 - **databricks-bundles** - DABs for multi-environment deployments
-- **databricks-app-apx** - Full-stack apps (FastAPI + React)
 - **databricks-apps-python** - Python web apps (Dash, Streamlit, Flask) with foundation model integration
 - **databricks-python-sdk** - Python SDK, Connect, CLI, REST API
 - **databricks-config** - Profile authentication setup
